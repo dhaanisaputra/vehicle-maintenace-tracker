@@ -34,3 +34,8 @@ export async function updateVehicle(
 export async function deleteVehicle(id: string): Promise<void> {
   await apiClient.delete(`/api/vehicles/${id}`);
 }
+
+export interface VehicleWithLastService extends Vehicle {
+  lastService?: { serviceDate: string; odometer: number } | null;
+}
+
