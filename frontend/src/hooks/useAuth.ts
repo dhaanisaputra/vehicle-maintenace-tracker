@@ -1,9 +1,10 @@
 "use client";
 
-import { clearToken, getToken, setToken } from "@/lib/token";
+import { clearToken, getToken, getUser, setToken, setUser } from "@/lib/token";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { login as apiLogin, register as apiRegister } from "@/features/auth/authApi";
+import { AuthUser } from "@/types/models";
 
 export function useAuth() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export function useAuth() {
       try {
         const res = await apiLogin({ email, password });
         setToken(res.token);
+        setUser(res.user);
         router.replace("/dashboard");
       } catch (e) {
         setError(extractMessage(e));
@@ -34,6 +36,7 @@ export function useAuth() {
       try {
         const res = await apiRegister({ username, email, password });
         setToken(res.token);
+        setUser(res.user);
         router.replace("/dashboard");
       } catch (e) {
         setError(extractMessage(e));
@@ -49,8 +52,18 @@ export function useAuth() {
     router.replace("/login");
   }, [router]);
 
-  return { login, register, logout, loading, error, isAuthenticated: !!getToken() };
+  return {
+    login,
+    register,
+    logout,
+    loading,
+    error,
+    user: getUser(),
+    isAuthenticated: !!getToken(),
+  };
 }
+
+export type { AuthUser };
 
 function extractMessage(e: unknown): string {
   if (e && typeof e === "object" && "response" in e) {

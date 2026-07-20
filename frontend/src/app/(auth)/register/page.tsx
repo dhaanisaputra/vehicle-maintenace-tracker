@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/Button";
 import { Field, Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 
@@ -45,8 +46,7 @@ export default function RegisterPage() {
           />
         </Field>
         <Field label="Password" required hint="Minimal 6 karakter">
-          <Input
-            type="password"
+          <PasswordInput
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

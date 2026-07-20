@@ -7,6 +7,7 @@ import { MobileShell } from "@/components/layout/MobileShell";
 import { Skeleton } from "@/components/ui/Spinner";
 import { VehicleCard } from "@/components/vehicles/VehicleCard";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/components/ui/Toast";
 import { getVehicles, VehicleWithLastService } from "@/features/vehicles/vehicleApi";
 import { searchServices } from "@/features/services/serviceApi";
@@ -16,6 +17,7 @@ import { useEffect, useState } from "react";
 export default function DashboardPage() {
   const ready = useRequireAuth();
   const router = useRouter();
+  const { user } = useAuth();
   const { notify } = useToast();
   const [vehicles, setVehicles] = useState<VehicleWithLastService[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,20 +59,12 @@ export default function DashboardPage() {
 
   return (
     <>
-      <AppHeader
-        title="Kendaraan"
-        right={
-          <button
-            onClick={() => router.push("/login")}
-            className="text-sm text-text-muted hover:text-text"
-          >
-            Keluar
-          </button>
-        }
-      />
+      <AppHeader title="Kendaraan" />
       <MobileShell>
         <div className="py-5">
-          <h2 className="mb-1 text-xl font-semibold text-text">Halo 👋</h2>
+          <h2 className="mb-1 text-xl font-semibold text-text">
+            Halo, {user?.username ?? "kamu"} 👋
+          </h2>
           <p className="text-sm text-text-muted">
             Pantau riwayat servis kendaraan kamu
           </p>

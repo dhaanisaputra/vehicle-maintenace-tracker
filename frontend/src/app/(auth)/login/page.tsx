@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/Button";
 import { Field, Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 
@@ -36,8 +37,7 @@ export default function LoginPage() {
           />
         </Field>
         <Field label="Password" required>
-          <Input
-            type="password"
+          <PasswordInput
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
