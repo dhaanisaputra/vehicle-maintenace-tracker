@@ -46,10 +46,11 @@ public class VehicleService {
                 .vehicleName(request.vehicleName())
                 .licensePlate(request.licensePlate())
                 .build();
-        Vehicle saved = vehicleRepository.save(vehicle);
+        Vehicle saved = vehicleRepository.saveAndFlush(vehicle);
+        Vehicle persisted = vehicleRepository.findById(saved.getId()).orElse(saved);
 
-        log.info("Vehicle created: id={}, user={}", saved.getId(), userId);
-        return VehicleResponse.from(saved);
+        log.info("Vehicle created: id={}, user={}", persisted.getId(), userId);
+        return VehicleResponse.from(persisted);
     }
 
     @Transactional

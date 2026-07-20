@@ -62,9 +62,10 @@ public class ServiceRecordService {
                 .receiptImageUrl(storeReceiptIfPresent(receiptFile))
                 .build();
 
-        ServiceRecord saved = serviceRecordRepository.save(record);
-        log.info("Service record created: id={}, vehicle={}", saved.getId(), vehicle.getId());
-        return ServiceRecordResponse.from(saved);
+        ServiceRecord saved = serviceRecordRepository.saveAndFlush(record);
+        ServiceRecord persisted = serviceRecordRepository.findById(saved.getId()).orElse(saved);
+        log.info("Service record created: id={}, vehicle={}", persisted.getId(), vehicle.getId());
+        return ServiceRecordResponse.from(persisted);
     }
 
     @Transactional
