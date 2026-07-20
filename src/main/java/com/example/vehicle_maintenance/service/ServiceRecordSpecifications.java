@@ -13,7 +13,6 @@ public final class ServiceRecordSpecifications {
 
     public static Specification<ServiceRecord> ownedBy(UUID userId) {
         return (root, query, cb) -> {
-            root.fetch("vehicle", jakarta.persistence.criteria.JoinType.LEFT);
             var vehicle = root.get("vehicle");
             return cb.equal(vehicle.get("user").get("id"), userId);
         };
