@@ -44,6 +44,7 @@ public class VehicleService {
         Vehicle vehicle = Vehicle.builder()
                 .user(user)
                 .vehicleName(request.vehicleName())
+                .vehicleType(request.vehicleType())
                 .licensePlate(request.licensePlate())
                 .build();
         Vehicle saved = vehicleRepository.saveAndFlush(vehicle);
@@ -57,6 +58,7 @@ public class VehicleService {
     public VehicleResponse update(UUID id, VehicleRequest request) {
         Vehicle vehicle = getOwnedVehicle(id);
         vehicle.setVehicleName(request.vehicleName());
+        vehicle.setVehicleType(request.vehicleType());
         vehicle.setLicensePlate(request.licensePlate());
 
         log.info("Vehicle updated: id={}", id);

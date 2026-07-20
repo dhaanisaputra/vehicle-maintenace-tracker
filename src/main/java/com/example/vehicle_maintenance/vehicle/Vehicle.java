@@ -4,6 +4,8 @@ import com.example.vehicle_maintenance.common.entity.BaseEntity;
 import com.example.vehicle_maintenance.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -29,6 +31,10 @@ public class Vehicle extends BaseEntity {
 
     @Column(name = "vehicle_name", nullable = false, length = 100)
     private String vehicleName;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "vehicle_type", nullable = false, length = 20)
+    private VehicleType vehicleType;
 
     @Column(name = "license_plate", length = 20)
     private String licensePlate;

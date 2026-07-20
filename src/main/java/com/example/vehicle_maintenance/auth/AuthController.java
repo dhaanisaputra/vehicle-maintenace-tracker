@@ -1,14 +1,18 @@
 package com.example.vehicle_maintenance.auth;
 
 import com.example.vehicle_maintenance.auth.dto.AuthResponse;
+import com.example.vehicle_maintenance.auth.dto.ChangePasswordRequest;
 import com.example.vehicle_maintenance.auth.dto.LoginRequest;
 import com.example.vehicle_maintenance.auth.dto.RegisterRequest;
+import com.example.vehicle_maintenance.auth.dto.UpdateProfileRequest;
 import com.example.vehicle_maintenance.common.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,5 +35,21 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(ApiResponse.success("Login successful", response));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<AuthResponse.UserInfo>> me() {
+        return ResponseEntity.ok(ApiResponse.success(authService.getProfile()));
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<ApiResponse<AuthResponse.UserInfo>> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Profile updated", authService.updateProfile(request)));
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+        authService.changePassword(request);
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 }

@@ -13,6 +13,7 @@ export interface AuthResponse {
 export interface Vehicle {
   id: string;
   vehicleName: string;
+  vehicleType: "MOTOR" | "MOBIL";
   licensePlate: string | null;
   createdAt: string;
 }

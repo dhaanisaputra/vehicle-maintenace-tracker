@@ -3,7 +3,12 @@
 import { clearToken, getToken, getUser, setToken, setUser } from "@/lib/token";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
-import { login as apiLogin, register as apiRegister } from "@/features/auth/authApi";
+import {
+  login as apiLogin,
+  register as apiRegister,
+  updateProfile as apiUpdateProfile,
+  changePassword as apiChangePassword,
+} from "@/features/auth/authApi";
 import { AuthUser } from "@/types/models";
 
 export function useAuth() {
@@ -52,10 +57,25 @@ export function useAuth() {
     router.replace("/login");
   }, [router]);
 
+  const updateProfile = useCallback(async (username: string) => {
+    const updated = await apiUpdateProfile({ username });
+    const current = getUser();
+    if (current) setUser({ ...current, username: updated.username });
+  }, []);
+
+  const changePassword = useCallback(
+    async (currentPassword: string, newPassword: string) => {
+      await apiChangePassword({ currentPassword, newPassword });
+    },
+    [],
+  );
+
   return {
     login,
     register,
     logout,
+    updateProfile,
+    changePassword,
     loading,
     error,
     user: getUser(),

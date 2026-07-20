@@ -56,6 +56,7 @@ export default function VehiclesPage() {
 
   const handleSubmit = async (payload: {
     vehicleName: string;
+    vehicleType: "MOTOR" | "MOBIL";
     licensePlate?: string;
   }) => {
     setSubmitting(true);
@@ -120,17 +121,17 @@ export default function VehiclesPage() {
                 key={v.id}
                 className="flex items-center justify-between gap-3 p-4"
               >
-                <button
-                  className="min-w-0 flex-1 text-left"
-                  onClick={() => router.push(`/services?vehicleId=${v.id}`)}
-                >
-                  <p className="truncate font-medium text-text">
-                    {v.vehicleName}
-                  </p>
-                  <p className="text-sm text-text-muted">
-                    {v.licensePlate || "—"}
-                  </p>
-                </button>
+                 <button
+                   className="min-w-0 flex-1 text-left"
+                   onClick={() => router.push(`/services?vehicleId=${v.id}`)}
+                 >
+                   <p className="truncate font-medium text-text">
+                     {v.vehicleName}
+                   </p>
+                   <p className="text-sm text-text-muted">
+                     {v.licensePlate || "—"} · {v.vehicleType === "MOBIL" ? "Mobil" : "Motor"}
+                   </p>
+                 </button>
                 <div className="flex shrink-0 gap-1">
                   <button
                     onClick={() => openEdit(v)}

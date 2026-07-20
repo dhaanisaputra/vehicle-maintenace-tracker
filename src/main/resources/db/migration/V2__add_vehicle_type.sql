@@ -1,0 +1,2 @@
+ALTER TABLE vehicles
+    ADD COLUMN vehicle_type VARCHAR(20) NOT NULL DEFAULT 'MOTOR';

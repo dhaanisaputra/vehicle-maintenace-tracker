@@ -41,3 +41,5 @@ uploads/
 be.log
 be.err
 dotenv.debug
+be.out
+be.err

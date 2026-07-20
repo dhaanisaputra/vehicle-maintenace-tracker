@@ -1,9 +1,13 @@
 package com.example.vehicle_maintenance.auth;
 
 import com.example.vehicle_maintenance.auth.dto.AuthResponse;
+import com.example.vehicle_maintenance.auth.dto.ChangePasswordRequest;
 import com.example.vehicle_maintenance.auth.dto.LoginRequest;
 import com.example.vehicle_maintenance.auth.dto.RegisterRequest;
+import com.example.vehicle_maintenance.auth.dto.UpdateProfileRequest;
+import com.example.vehicle_maintenance.common.exception.BusinessException;
 import com.example.vehicle_maintenance.common.exception.DuplicateResourceException;
+import com.example.vehicle_maintenance.security.CurrentUserProvider;
 import com.example.vehicle_maintenance.security.JwtService;
 import com.example.vehicle_maintenance.user.User;
 import com.example.vehicle_maintenance.user.UserRepository;
@@ -24,6 +28,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -66,5 +71,34 @@ public class AuthService {
         AuthResponse.UserInfo userInfo = new AuthResponse.UserInfo(
                 user.getId().toString(), user.getUsername(), user.getEmail());
         return AuthResponse.of(token, userInfo);
+    }
+
+    @Transactional(readOnly = true)
+    public AuthResponse.UserInfo getProfile() {
+        User user = userRepository.getReferenceById(currentUserProvider.getCurrentUserId());
+        return new AuthResponse.UserInfo(user.getId().toString(), user.getUsername(), user.getEmail());
+    }
+
+    @Transactional
+    public AuthResponse.UserInfo updateProfile(UpdateProfileRequest request) {
+        User user = userRepository.getReferenceById(currentUserProvider.getCurrentUserId());
+        if (!user.getUsername().equals(request.username())
+                && userRepository.existsByUsername(request.username())) {
+            throw new DuplicateResourceException("Username is already taken");
+        }
+        user.setUsername(request.username());
+        User saved = userRepository.saveAndFlush(user);
+        return new AuthResponse.UserInfo(saved.getId().toString(), saved.getUsername(), saved.getEmail());
+    }
+
+    @Transactional
+    public void changePassword(ChangePasswordRequest request) {
+        User user = userRepository.getReferenceById(currentUserProvider.getCurrentUserId());
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
+            throw new BusinessException("Current password is incorrect");
+        }
+        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        userRepository.saveAndFlush(user);
+        log.info("Password changed for user: {}", user.getId());
     }
 }
