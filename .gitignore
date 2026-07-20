@@ -36,3 +36,8 @@ build/
 uploads/
 *.env
 .env
+
+# local logs (do not commit)
+be.log
+be.err
+dotenv.debug
