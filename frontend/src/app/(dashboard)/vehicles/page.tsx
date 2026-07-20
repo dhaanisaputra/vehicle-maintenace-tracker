@@ -35,7 +35,7 @@ export default function VehiclesPage() {
     try {
       setVehicles(await getVehicles());
     } catch {
-      notify("Gagal memuat kendaraan", "error");
+      notify("Failed to load vehicles", "error");
     } finally {
       setLoading(false);
     }
@@ -63,28 +63,28 @@ export default function VehiclesPage() {
     try {
       if (editing) {
         await updateVehicle(editing.id, payload);
-        notify("Kendaraan diperbarui");
+        notify("Vehicle updated");
       } else {
         await createVehicle(payload);
-        notify("Kendaraan ditambahkan");
+        notify("Vehicle added");
       }
       setSheetOpen(false);
       load();
     } catch {
-      notify("Gagal menyimpan kendaraan", "error");
+      notify("Failed to save vehicle", "error");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (v: Vehicle) => {
-    if (!confirm(`Hapus ${v.vehicleName}? Riwayat servis ikut terhapus.`)) return;
+    if (!confirm(`Delete ${v.vehicleName}? Its service history will also be removed.`)) return;
     try {
       await deleteVehicle(v.id);
-      notify("Kendaraan dihapus");
+      notify("Vehicle deleted");
       load();
     } catch {
-      notify("Gagal menghapus", "error");
+      notify("Failed to delete", "error");
     }
   };
 
@@ -93,11 +93,11 @@ export default function VehiclesPage() {
   return (
     <>
       <AppHeader
-        title="Kendaraan"
+        title="Vehicles"
         onBack={() => router.push("/dashboard")}
         right={
           <Button size="sm" onClick={openAdd}>
-            + Baru
+            + New
           </Button>
         }
       />
@@ -110,9 +110,9 @@ export default function VehiclesPage() {
           </div>
         ) : vehicles.length === 0 ? (
           <EmptyState
-            title="Belum ada kendaraan"
-            description="Tambah kendaraan untuk mulai mencatat riwayat servis."
-            action={<Button onClick={openAdd}>+ Tambah Kendaraan</Button>}
+            title="No vehicles yet"
+            description="Add a vehicle to start recording its service history."
+            action={<Button onClick={openAdd}>+ Add Vehicle</Button>}
           />
         ) : (
           <div className="space-y-3">
@@ -121,17 +121,17 @@ export default function VehiclesPage() {
                 key={v.id}
                 className="flex items-center justify-between gap-3 p-4"
               >
-                 <button
-                   className="min-w-0 flex-1 text-left"
-                   onClick={() => router.push(`/services?vehicleId=${v.id}`)}
-                 >
-                   <p className="truncate font-medium text-text">
-                     {v.vehicleName}
-                   </p>
-                   <p className="text-sm text-text-muted">
-                     {v.licensePlate || "—"} · {v.vehicleType === "MOBIL" ? "Mobil" : "Motor"}
-                   </p>
-                 </button>
+                <button
+                  className="min-w-0 flex-1 text-left"
+                  onClick={() => router.push(`/services?vehicleId=${v.id}`)}
+                >
+                  <p className="truncate font-medium text-text">
+                    {v.vehicleName}
+                  </p>
+                  <p className="text-sm text-text-muted">
+                    {v.licensePlate || "—"} · {v.vehicleType === "MOBIL" ? "Car" : "Motorcycle"}
+                  </p>
+                </button>
                 <div className="flex shrink-0 gap-1">
                   <button
                     onClick={() => openEdit(v)}
@@ -143,7 +143,7 @@ export default function VehiclesPage() {
                     onClick={() => handleDelete(v)}
                     className="px-2 py-1 text-sm text-danger hover:underline"
                   >
-                    Hapus
+                    Delete
                   </button>
                 </div>
               </Card>
@@ -155,7 +155,7 @@ export default function VehiclesPage() {
       <BottomSheet
         open={sheetOpen}
         onClose={() => setSheetOpen(false)}
-        title={editing ? "Edit Kendaraan" : "Tambah Kendaraan"}
+        title={editing ? "Edit Vehicle" : "Add Vehicle"}
       >
         <VehicleForm
           initial={editing ?? undefined}

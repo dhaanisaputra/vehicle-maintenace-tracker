@@ -34,4 +34,21 @@ public final class ServiceRecordSpecifications {
                 cb.like(cb.lower(root.get("partsReplaced")), pattern),
                 cb.like(cb.lower(root.get("notes")), pattern));
     }
+
+    public static Specification<ServiceRecord> serviceDateBetween(java.time.LocalDate from, java.time.LocalDate to) {
+        if (from == null && to == null) {
+            return null;
+        }
+        return (root, query, cb) -> {
+            jakarta.persistence.criteria.Path<java.time.LocalDate> date =
+                    root.get("serviceDate");
+            if (from != null && to != null) {
+                return cb.between(date, from, to);
+            }
+            if (from != null) {
+                return cb.greaterThanOrEqualTo(date, from);
+            }
+            return cb.lessThanOrEqualTo(date, to);
+        };
+    }
 }

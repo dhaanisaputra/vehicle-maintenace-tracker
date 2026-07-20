@@ -18,7 +18,7 @@ export default function RegisterPage() {
         <h1 className="text-2xl font-semibold text-text">
           Vehicle Maintenance
         </h1>
-        <p className="mt-1 text-sm text-text-muted">Buat akun baru</p>
+        <p className="mt-1 text-sm text-text-muted">Create a new account</p>
       </div>
 
       <form
@@ -45,7 +45,7 @@ export default function RegisterPage() {
             required
           />
         </Field>
-        <Field label="Password" required hint="Minimal 6 karakter">
+        <Field label="Password" required hint="At least 6 characters">
           <PasswordInput
             autoComplete="new-password"
             value={password}
@@ -58,14 +58,14 @@ export default function RegisterPage() {
         {error && <p className="text-sm text-danger">{error}</p>}
 
         <Button type="submit" fullWidth loading={loading}>
-          Daftar
+          Register
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-text-muted">
-        Sudah punya akun?{" "}
+        Already have an account?{" "}
         <a href="/login" className="font-medium text-primary">
-          Masuk
+          Sign In
         </a>
       </p>
     </main>

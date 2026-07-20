@@ -31,13 +31,15 @@ public class ServiceRecordService {
     private final CurrentUserProvider currentUserProvider;
 
     @Transactional(readOnly = true)
-    public PageResponse<ServiceRecordResponse> search(UUID vehicleId, String keyword, Pageable pageable) {
+    public PageResponse<ServiceRecordResponse> search(
+            UUID vehicleId, String keyword, java.time.LocalDate from, java.time.LocalDate to, Pageable pageable) {
         UUID userId = currentUserProvider.getCurrentUserId();
 
         Specification<ServiceRecord> spec = Specification.allOf(
                 ServiceRecordSpecifications.ownedBy(userId),
                 ServiceRecordSpecifications.hasVehicle(vehicleId),
-                ServiceRecordSpecifications.matchesKeyword(keyword));
+                ServiceRecordSpecifications.matchesKeyword(keyword),
+                ServiceRecordSpecifications.serviceDateBetween(from, to));
 
         Page<ServiceRecord> page = serviceRecordRepository.findAll(spec, pageable);
         return PageResponse.from(page, ServiceRecordResponse::from);

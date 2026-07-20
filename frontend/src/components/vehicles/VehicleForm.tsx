@@ -53,8 +53,8 @@ export function VehicleForm({
           className="h-11 w-full rounded border border-border bg-surface px-3 text-base text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
           required
         >
-          <option value="MOTOR">Motor</option>
-          <option value="MOBIL">Mobil</option>
+          <option value="MOTOR">Motorcycle</option>
+          <option value="MOBIL">Car</option>
         </select>
       </Field>
       <Field label="Plat nomor" hint="Opsional">
@@ -65,7 +65,7 @@ export function VehicleForm({
         />
       </Field>
       <Button type="submit" fullWidth loading={loading}>
-        Simpan
+        Save
       </Button>
     </form>
   );

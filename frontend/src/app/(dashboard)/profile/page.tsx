@@ -32,7 +32,7 @@ export default function ProfilePage() {
     setSavingProfile(true);
     try {
       await updateProfile(username.trim());
-      notify("Profil diperbarui");
+      notify("Profile updated");
     } catch (err) {
       notify(extractMessage(err), "error");
     } finally {
@@ -46,7 +46,7 @@ export default function ProfilePage() {
     setSavingPassword(true);
     try {
       await changePassword(currentPassword, newPassword);
-      notify("Password diubah");
+      notify("Password changed");
       setCurrentPassword("");
       setNewPassword("");
     } catch (err) {
@@ -58,7 +58,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <AppHeader title="Profil" onBack={() => router.push("/dashboard")} />
+      <AppHeader title="Profile" onBack={() => router.push("/dashboard")} />
       <MobileShell>
         <div className="space-y-5 py-5">
           <Card className="divide-y divide-border">
@@ -71,7 +71,7 @@ export default function ProfilePage() {
           </Card>
 
           <form className="space-y-4" onSubmit={saveProfile}>
-            <h2 className="text-sm font-semibold text-text">Ubah Username</h2>
+            <h2 className="text-sm font-semibold text-text">Change Username</h2>
             <Field label="Username" required>
               <Input
                 value={username}
@@ -80,13 +80,13 @@ export default function ProfilePage() {
               />
             </Field>
             <Button type="submit" loading={savingProfile}>
-              Simpan Profil
+              Save Profile
             </Button>
           </form>
 
           <form className="space-y-4" onSubmit={savePassword}>
-            <h2 className="text-sm font-semibold text-text">Ubah Password</h2>
-            <Field label="Password saat ini" required>
+            <h2 className="text-sm font-semibold text-text">Change Password</h2>
+            <Field label="Current password" required>
               <Input
                 type="password"
                 value={currentPassword}
@@ -94,17 +94,17 @@ export default function ProfilePage() {
                 required
               />
             </Field>
-            <Field label="Password baru" required>
+            <Field label="New password" required>
               <Input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Minimal 6 karakter"
+                placeholder="At least 6 characters"
                 required
               />
             </Field>
             <Button type="submit" variant="secondary" loading={savingPassword}>
-              Ubah Password
+              Change Password
             </Button>
           </form>
         </div>

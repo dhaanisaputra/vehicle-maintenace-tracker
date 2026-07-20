@@ -14,6 +14,8 @@ export interface ServiceRecordPayload {
 export interface ServiceSearchParams {
   vehicleId?: string;
   search?: string;
+  from?: string;
+  to?: string;
   page?: number;
   size?: number;
   sort?: string;

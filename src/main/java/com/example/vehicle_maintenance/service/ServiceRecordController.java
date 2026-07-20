@@ -36,9 +36,11 @@ public class ServiceRecordController {
     public ResponseEntity<ApiResponse<PageResponse<ServiceRecordResponse>>> search(
             @RequestParam(required = false) UUID vehicleId,
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) java.time.LocalDate from,
+            @RequestParam(required = false) java.time.LocalDate to,
             @PageableDefault(size = 20, sort = "serviceDate", direction = Sort.Direction.DESC) Pageable pageable) {
         PageResponse<ServiceRecordResponse> result =
-                serviceRecordService.search(vehicleId, search, pageable);
+                serviceRecordService.search(vehicleId, search, from, to, pageable);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 

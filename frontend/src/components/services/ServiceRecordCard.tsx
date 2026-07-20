@@ -40,7 +40,7 @@ export function ServiceRecordCard({
               }}
               className="text-xs text-danger hover:underline"
             >
-              Hapus
+              Delete
             </button>
           )}
         </div>
@@ -71,7 +71,7 @@ export function ServiceRecordCard({
 
       {record.notes && (
         <p className="mt-1 line-clamp-3 text-sm text-text-muted">
-          <span className="font-medium text-text-subtle">Catatan: </span>
+          <span className="font-medium text-text-subtle">Notes: </span>
           {record.notes}
         </p>
       )}

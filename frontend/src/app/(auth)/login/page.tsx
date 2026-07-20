@@ -17,7 +17,7 @@ export default function LoginPage() {
         <h1 className="text-2xl font-semibold text-text">
           Vehicle Maintenance
         </h1>
-        <p className="mt-1 text-sm text-text-muted">Masuk ke akun kamu</p>
+        <p className="mt-1 text-sm text-text-muted">Sign in to your account</p>
       </div>
 
       <form
@@ -48,14 +48,14 @@ export default function LoginPage() {
         {error && <p className="text-sm text-danger">{error}</p>}
 
         <Button type="submit" fullWidth loading={loading}>
-          Masuk
+          Sign In
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-text-muted">
-        Belum punya akun?{" "}
+        Don&apos;t have an account?{" "}
         <a href="/register" className="font-medium text-primary">
-          Daftar
+          Register
         </a>
       </p>
     </main>

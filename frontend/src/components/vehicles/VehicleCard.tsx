@@ -35,7 +35,7 @@ export function VehicleCard({
         </span>
       </div>
       <p className="mt-3 text-xs text-text-subtle">
-        Servis terakhir{" "}
+        Last service{" "}
         {lastService ? formatDate(lastService.serviceDate) : "belum ada"}
       </p>
     </Card>

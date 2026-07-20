@@ -64,27 +64,27 @@ export function ServiceRecordForm({
       notes: notes || undefined,
     };
     if (!payload.vehicleId) {
-      notify("Pilih kendaraan dulu", "error");
+      notify("Please select a vehicle", "error");
       return;
     }
     try {
       if (initial) {
         await updateService(initial.id, payload, receipt ?? undefined);
-        notify("Servis diperbarui");
+        notify("Service updated");
       } else {
         await createService(payload, receipt ?? undefined);
-        notify("Servis dicatat");
+        notify("Service recorded");
       }
       onSubmit();
     } catch {
-      notify("Gagal menyimpan servis", "error");
+      notify("Failed to save service", "error");
     }
   };
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
       {vehicles.length > 1 && (
-        <Field label="Kendaraan" required>
+        <Field label="Vehicle" required>
           <select
             value={vehicleId}
             onChange={(e) => setVehicleId(e.target.value)}
@@ -99,7 +99,7 @@ export function ServiceRecordForm({
         </Field>
       )}
 
-      <Field label="Tanggal servis" required>
+      <Field label="Service date" required>
         <Input
           type="date"
           value={serviceDate}
@@ -121,15 +121,15 @@ export function ServiceRecordForm({
         />
       </Field>
 
-      <Field label="Parts diganti" hint="Opsional">
+      <Field label="Parts replaced" hint="Optional">
         <Input
           value={partsReplaced}
           onChange={(e) => setPartsReplaced(e.target.value)}
-          placeholder="Fanbelt, oli, roller"
+          placeholder="Fanbelt, oil, roller"
         />
       </Field>
 
-      <Field label="Biaya (Rp)" hint="Opsional">
+      <Field label="Cost (Rp)" hint="Optional">
         <Input
           type="number"
           inputMode="numeric"
@@ -140,7 +140,7 @@ export function ServiceRecordForm({
         />
       </Field>
 
-      <Field label="Nota bengkel" hint="Opsional (foto langsung di HP)">
+      <Field label="Receipt" hint="Optional (take a photo on your phone)">
         <input
           ref={fileRef}
           type="file"
@@ -154,7 +154,7 @@ export function ServiceRecordForm({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={preview}
-              alt="Nota"
+              alt="Receipt"
               className="h-20 w-20 rounded border border-border object-cover"
             />
             <button
@@ -162,7 +162,7 @@ export function ServiceRecordForm({
               onClick={() => fileRef.current?.click()}
               className="text-sm text-primary hover:underline"
             >
-              Ganti
+              Change
             </button>
           </div>
         ) : (
@@ -171,22 +171,22 @@ export function ServiceRecordForm({
             variant="secondary"
             onClick={() => fileRef.current?.click()}
           >
-            📷 Ambil / Unggah Foto
+            📷 Take / Upload Photo
           </Button>
         )}
       </Field>
 
-      <Field label="Catatan" hint="Opsional">
+      <Field label="Notes" hint="Optional">
         <Textarea
           rows={3}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Keterangan tambahan..."
+          placeholder="Additional details..."
         />
       </Field>
 
       <Button type="submit" fullWidth loading={submitting}>
-        {initial ? "Perbarui" : "Simpan"}
+        {initial ? "Update" : "Save"}
       </Button>
     </form>
   );

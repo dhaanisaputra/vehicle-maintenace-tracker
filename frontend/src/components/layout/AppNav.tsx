@@ -7,9 +7,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Kendaraan", icon: "🚗" },
-  { href: "/services", label: "Riwayat", icon: "🛠" },
-  { href: "/profile", label: "Profil", icon: "👤" },
+  { href: "/dashboard", label: "Vehicles", icon: "🚗" },
+  { href: "/services", label: "History", icon: "🛠" },
+  { href: "/profile", label: "Profile", icon: "👤" },
 ];
 
 export function AppNav() {
@@ -28,7 +28,7 @@ export function AppNav() {
         <div className="border-b border-border px-5 py-4">
           <p className="text-sm font-semibold text-text">Vehicle Tracker</p>
           <p className="truncate text-xs text-text-subtle">
-            {user?.username ?? "kamu"}
+            {user?.username ?? "there"}
           </p>
         </div>
         <nav className="flex flex-1 flex-col gap-1 p-3">
@@ -53,7 +53,7 @@ export function AppNav() {
             onClick={() => setLogoutOpen(true)}
             className="flex w-full items-center gap-3 rounded px-3 py-2.5 text-sm font-medium text-danger hover:bg-danger-soft"
           >
-            <span>🚪</span> Keluar
+            <span>🚪</span> Log Out
           </button>
         </div>
       </aside>
@@ -78,15 +78,15 @@ export function AppNav() {
           className="flex flex-1 flex-col items-center gap-0.5 py-2 text-xs text-danger"
         >
           <span className="text-lg">🚪</span>
-          Keluar
+          Log Out
         </button>
       </nav>
 
       <ConfirmDialog
         open={logoutOpen}
-        title="Keluar?"
-        description="Kamu akan keluar dari akun ini."
-        confirmLabel="Keluar"
+        title="Log out?"
+        description="You will be signed out of this account."
+        confirmLabel="Log Out"
         destructive
         onConfirm={() => {
           setLogoutOpen(false);

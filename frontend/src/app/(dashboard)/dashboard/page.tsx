@@ -45,7 +45,7 @@ export default function DashboardPage() {
       );
       setVehicles(withLast);
     } catch {
-      notify("Gagal memuat kendaraan", "error");
+      notify("Failed to load vehicles", "error");
     } finally {
       setLoading(false);
     }
@@ -59,14 +59,14 @@ export default function DashboardPage() {
 
   return (
     <>
-      <AppHeader title="Kendaraan" />
+      <AppHeader title="Vehicles" />
       <MobileShell>
         <div className="py-5">
           <h2 className="mb-1 text-xl font-semibold text-text">
-            Halo, {user?.username ?? "kamu"} 👋
+            Hello, {user?.username ?? "there"} 👋
           </h2>
           <p className="text-sm text-text-muted">
-            Pantau riwayat servis kendaraan kamu
+            Track your vehicle service history
           </p>
         </div>
 
@@ -78,11 +78,11 @@ export default function DashboardPage() {
           </div>
         ) : vehicles.length === 0 ? (
           <EmptyState
-            title="Belum ada kendaraan"
-            description="Tambah kendaraan pertama kamu untuk mulai mencatat servis."
+            title="No vehicles yet"
+            description="Add your first vehicle to start recording services."
             action={
               <Button onClick={() => router.push("/vehicles")}>
-                + Tambah Kendaraan
+                + Add Vehicle
               </Button>
             }
           />
@@ -114,7 +114,7 @@ export default function DashboardPage() {
                 )
               }
             >
-              + Catat Servis
+              + Record Service
             </Button>
           </div>
         </div>
