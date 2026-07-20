@@ -11,6 +11,7 @@ import {
 } from "@/features/services/serviceApi";
 import { ServiceRecord } from "@/types/models";
 import { Vehicle } from "@/types/models";
+import { API_BASE_URL } from "@/config/constants";
 import { useRef, useState } from "react";
 
 export function ServiceRecordForm({
@@ -44,7 +45,9 @@ export function ServiceRecordForm({
   const [notes, setNotes] = useState(initial?.notes ?? "");
   const [receipt, setReceipt] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(
-    initial?.receiptImageUrl ?? null,
+    initial?.receiptImageUrl
+      ? `${API_BASE_URL}${initial.receiptImageUrl}`
+      : null,
   );
 
   const onFile = (file?: File) => {
@@ -65,6 +68,10 @@ export function ServiceRecordForm({
     };
     if (!payload.vehicleId) {
       notify("Please select a vehicle", "error");
+      return;
+    }
+    if (!totalCost || Number(totalCost) <= 0) {
+      notify("Cost is required", "error");
       return;
     }
     try {
@@ -129,7 +136,7 @@ export function ServiceRecordForm({
         />
       </Field>
 
-      <Field label="Cost (Rp)" hint="Optional">
+      <Field label="Cost (Rp)" required>
         <Input
           type="number"
           inputMode="numeric"
@@ -137,6 +144,7 @@ export function ServiceRecordForm({
           value={totalCost}
           onChange={(e) => setTotalCost(e.target.value)}
           placeholder="350000"
+          required
         />
       </Field>
 

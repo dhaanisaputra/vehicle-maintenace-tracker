@@ -25,6 +25,7 @@ public record ServiceRecordRequest(
         @Size(max = 1000, message = "Parts replaced must not exceed 1000 characters")
         String partsReplaced,
 
+        @NotNull(message = "Total cost is required")
         @PositiveOrZero(message = "Total cost must be zero or positive")
         BigDecimal totalCost,
 
