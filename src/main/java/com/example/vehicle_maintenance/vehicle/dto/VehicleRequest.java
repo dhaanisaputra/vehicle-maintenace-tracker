@@ -14,6 +14,7 @@ public record VehicleRequest(
         @NotNull(message = "Vehicle type is required")
         VehicleType vehicleType,
 
+        @NotBlank(message = "License plate is required")
         @Size(max = 20, message = "License plate must not exceed 20 characters")
         String licensePlate
 ) {

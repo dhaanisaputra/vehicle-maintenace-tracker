@@ -2,16 +2,17 @@
 
 import { Card } from "@/components/ui/Card";
 import { formatCurrency, formatDate, formatOdometer } from "@/lib/format";
-import { API_BASE_URL } from "@/config/constants";
 import { ServiceRecord } from "@/types/models";
 
 export function ServiceRecordCard({
   record,
+  vehicleName,
   onSelect,
   onEdit,
   onDelete,
 }: {
   record: ServiceRecord;
+  vehicleName?: string;
   onSelect: (id: string) => void;
   onEdit?: (id: string) => void;
   onDelete?: (record: ServiceRecord) => void;
@@ -38,20 +39,16 @@ export function ServiceRecordCard({
           </div>
         </div>
 
+        {vehicleName && (
+          <p className="mt-1 text-sm font-medium text-text">{vehicleName}</p>
+        )}
+
         <div className="mt-2 flex items-center justify-between gap-3">
           <p className="tnum text-base font-semibold text-text">
             {formatOdometer(record.odometer)}
           </p>
           {record.receiptImageUrl && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect(record.id);
-              }}
-              className="text-xs font-medium text-primary hover:underline"
-            >
-              📄 Nota
-            </button>
+            <span className="text-xs text-text-subtle">📄 Has receipt</span>
           )}
         </div>
 

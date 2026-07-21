@@ -7,12 +7,13 @@ import { useToast } from "@/components/ui/Toast";
 import {
   ServiceRecordPayload,
   createService,
+  searchServices,
   updateService,
 } from "@/features/services/serviceApi";
 import { ServiceRecord } from "@/types/models";
 import { Vehicle } from "@/types/models";
 import { API_BASE_URL } from "@/config/constants";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function ServiceRecordForm({
   vehicles,
@@ -43,6 +44,8 @@ export function ServiceRecordForm({
     initial?.totalCost?.toString() ?? "",
   );
   const [notes, setNotes] = useState(initial?.notes ?? "");
+  const [lastOdometer, setLastOdometer] = useState<number | null>(null);
+  const [loadingLastOdo, setLoadingLastOdo] = useState(false);
   const [receipt, setReceipt] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(
     initial?.receiptImageUrl
@@ -55,6 +58,35 @@ export function ServiceRecordForm({
     setReceipt(file);
     setPreview(URL.createObjectURL(file));
   };
+
+  useEffect(() => {
+    if (!vehicleId) {
+      setLastOdometer(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setLoadingLastOdo(true);
+      try {
+        const result = await searchServices({
+          vehicleId,
+          size: 2,
+          sort: "serviceDate,desc",
+        });
+        if (cancelled) return;
+        const excludeId = initial?.id;
+        const last = result.content.find(
+          (s) => !excludeId || s.id !== excludeId,
+        );
+        setLastOdometer(last ? last.odometer : 0);
+      } catch {
+        if (!cancelled) setLastOdometer(0);
+      } finally {
+        if (!cancelled) setLoadingLastOdo(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [vehicleId, initial?.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,6 +104,10 @@ export function ServiceRecordForm({
     }
     if (!totalCost || Number(totalCost) <= 0) {
       notify("Cost is required", "error");
+      return;
+    }
+    if (lastOdometer !== null && Number(odometer) < lastOdometer) {
+      notify(`Odometer must be at least ${lastOdometer.toLocaleString()} km`, "error");
       return;
     }
     try {
@@ -116,11 +152,21 @@ export function ServiceRecordForm({
         />
       </Field>
 
+      <Field label="Last Odometer (km)">
+        <Input
+          type="number"
+          inputMode="numeric"
+          value={lastOdometer !== null ? lastOdometer.toLocaleString() : loadingLastOdo ? "Loading..." : "—"}
+          disabled
+          className="bg-gray-100 text-text-subtle"
+        />
+      </Field>
+
       <Field label="Odometer (km)" required>
         <Input
           type="number"
           inputMode="numeric"
-          min={0}
+          min={lastOdometer ?? 0}
           value={odometer}
           onChange={(e) => setOdometer(e.target.value)}
           placeholder="30000"

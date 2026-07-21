@@ -32,11 +32,11 @@ export function VehicleForm({
         onSubmit({
           vehicleName,
           vehicleType,
-          licensePlate: licensePlate || undefined,
+          licensePlate,
         });
       }}
     >
-      <Field label="Nama kendaraan" required>
+      <Field label="Vehicle Name" required>
         <Input
           value={vehicleName}
           onChange={(e) => setVehicleName(e.target.value)}
@@ -44,7 +44,7 @@ export function VehicleForm({
           required
         />
       </Field>
-      <Field label="Kategori" required>
+      <Field label="Category" required>
         <select
           value={vehicleType}
           onChange={(e) =>
@@ -57,11 +57,12 @@ export function VehicleForm({
           <option value="MOBIL">Car</option>
         </select>
       </Field>
-      <Field label="Plat nomor" hint="Opsional">
+      <Field label="License Plate" required>
         <Input
           value={licensePlate}
           onChange={(e) => setLicensePlate(e.target.value.toUpperCase())}
           placeholder="B1234XYZ"
+          required
         />
       </Field>
       <Button type="submit" fullWidth loading={loading}>

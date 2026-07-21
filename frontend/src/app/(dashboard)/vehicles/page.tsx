@@ -57,7 +57,7 @@ export default function VehiclesPage() {
   const handleSubmit = async (payload: {
     vehicleName: string;
     vehicleType: "MOTOR" | "MOBIL";
-    licensePlate?: string;
+    licensePlate: string;
   }) => {
     setSubmitting(true);
     try {

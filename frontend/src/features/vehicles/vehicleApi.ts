@@ -5,7 +5,7 @@ import type { Vehicle } from "@/types/models";
 export interface VehiclePayload {
   vehicleName: string;
   vehicleType: "MOTOR" | "MOBIL";
-  licensePlate?: string;
+  licensePlate: string;
 }
 
 export async function getVehicles(): Promise<Vehicle[]> {

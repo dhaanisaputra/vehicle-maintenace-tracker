@@ -4,6 +4,7 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { DropdownMenu, DropdownItem } from "@/components/ui/DropdownMenu";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { MobileShell } from "@/components/layout/MobileShell";
 import { Skeleton } from "@/components/ui/Spinner";
@@ -21,7 +22,8 @@ import {
 import { ServiceRecord } from "@/types/models";
 import { getVehicles } from "@/features/vehicles/vehicleApi";
 import { Vehicle } from "@/types/models";
-import { formatCurrency, formatOdometer } from "@/lib/format";
+import { formatCurrency, formatDate, formatOdometer } from "@/lib/format";
+import { API_BASE_URL } from "@/config/constants";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
 
@@ -53,22 +55,30 @@ function ServicesPageInner() {
 
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>("");
+  const [appliedVehicleId, setAppliedVehicleId] = useState<string>("");
   const [records, setRecords] = useState<ServiceRecord[]>([]);
   const [totalElements, setTotalElements] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
   const [from, setFrom] = useState(lastMonthIso());
+  const [appliedFrom, setAppliedFrom] = useState(lastMonthIso());
   const [to, setTo] = useState(toIsoDate(new Date()));
+  const [appliedTo, setAppliedTo] = useState(toIsoDate(new Date()));
   const [sort, setSort] = useState("serviceDate,desc");
+  const [appliedSort, setAppliedSort] = useState("serviceDate,desc");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editing, setEditing] = useState<ServiceRecord | null>(null);
   const [detail, setDetail] = useState<ServiceRecord | null>(null);
+  const [viewReceipt, setViewReceipt] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ServiceRecord | null>(null);
 
   const vehicleIdParam = params.get("vehicleId");
+
+  const vehicleMap = Object.fromEntries(vehicles.map((v) => [v.id, v]));
 
   const loadVehicles = useCallback(async () => {
     const list = await getVehicles();
@@ -102,7 +112,6 @@ function ServicesPageInner() {
     [],
   );
 
-  // Initial load: vehicles + default filters (last 1 month)
   useEffect(() => {
     if (!ready) return;
     (async () => {
@@ -110,59 +119,79 @@ function ServicesPageInner() {
         const list = await loadVehicles();
         const target = vehicleIdParam ?? "";
         setSelectedVehicleId(target);
+        setAppliedVehicleId(target);
         setPage(0);
         await loadRecords(target, "", from, to, sort, 0);
+        setAppliedFrom(from);
+        setAppliedTo(to);
+        setAppliedSort(sort);
       } catch {
         notify("Failed to load data", "error");
       } finally {
         setLoading(false);
       }
     })();
-  }, [ready, vehicleIdParam, loadVehicles, loadRecords, notify, sort, from, to]);
+  }, [ready, vehicleIdParam, loadVehicles, loadRecords, notify, from, to, sort]);
 
-  const applyFilters = (vid: string, keyword: string) => {
+  const applyAllFilters = () => {
     setPage(0);
-    loadRecords(vid, keyword, from, to, sort, 0);
+    setAppliedVehicleId(selectedVehicleId);
+    setAppliedSearch(search);
+    setAppliedFrom(from);
+    setAppliedTo(to);
+    setAppliedSort(sort);
+    loadRecords(selectedVehicleId, search, from, to, sort, 0);
+    router.replace(selectedVehicleId ? `/services?vehicleId=${selectedVehicleId}` : "/services");
   };
 
   const onChangeVehicle = (vid: string) => {
     setSelectedVehicleId(vid);
-    router.replace(vid ? `/services?vehicleId=${vid}` : "/services");
-    applyFilters(vid, search);
   };
 
   const onSearch = (keyword: string) => {
     setSearch(keyword);
-    applyFilters(selectedVehicleId, keyword);
   };
 
   const onChangeSort = (value: string) => {
     setSort(value);
   };
 
-  const applyDateRange = () => {
-    applyFilters(selectedVehicleId, search);
+  const onChangeFrom = (value: string) => {
+    setFrom(value);
+  };
+
+  const onChangeTo = (value: string) => {
+    setTo(value);
   };
 
   const resetFilters = () => {
     setSearch("");
+    setAppliedSearch("");
     setFrom(lastMonthIso());
+    setAppliedFrom(lastMonthIso());
     setTo(toIsoDate(new Date()));
-    applyFilters(selectedVehicleId, "");
+    setAppliedTo(toIsoDate(new Date()));
+    setSelectedVehicleId("");
+    setAppliedVehicleId("");
+    setPage(0);
+    router.replace("/services");
+    loadRecords("", "", lastMonthIso(), toIsoDate(new Date()), "serviceDate,desc", 0);
+    setAppliedSort("serviceDate,desc");
+    setSort("serviceDate,desc");
   };
 
   const goToPage = (next: number) => {
     setPage(next);
-    loadRecords(selectedVehicleId, search, from, to, sort, next);
+    loadRecords(appliedVehicleId, appliedSearch, appliedFrom, appliedTo, appliedSort, next);
   };
 
   const refresh = () => {
-    loadRecords(selectedVehicleId, search, from, to, sort, page);
+    loadRecords(appliedVehicleId, appliedSearch, appliedFrom, appliedTo, appliedSort, page);
   };
 
   const refreshAndResetPage = () => {
     setPage(0);
-    loadRecords(selectedVehicleId, search, from, to, sort, 0);
+    loadRecords(appliedVehicleId, appliedSearch, appliedFrom, appliedTo, appliedSort, 0);
   };
 
   const openAdd = () => {
@@ -214,7 +243,7 @@ function ServicesPageInner() {
     );
   }
 
-  const hasActiveFilters = !!search || !!from || !!to;
+  const hasActiveFilters = !!appliedSearch || !!appliedFrom || !!appliedTo || !!appliedVehicleId;
 
   return (
     <>
@@ -229,38 +258,8 @@ function ServicesPageInner() {
       />
 
       <MobileShell>
-        {/* Summary cards */}
-        <div className="grid grid-cols-2 gap-3 py-4 sm:grid-cols-4">
-          <div className="rounded-lg border border-border bg-surface p-3">
-            <p className="text-xs text-text-subtle">Last service odometer</p>
-            <p className="tnum mt-0.5 text-lg font-semibold text-text">
-              {records[0] ? formatOdometer(records[0].odometer) : "—"}
-            </p>
-          </div>
-          <div className="rounded-lg border border-border bg-surface p-3">
-            <p className="text-xs text-text-subtle">Total cost</p>
-            <p className="tnum mt-0.5 text-lg font-semibold text-text">
-              {formatCurrency(
-                records.reduce((sum, r) => sum + (r.totalCost ?? 0), 0),
-              )}
-            </p>
-          </div>
-          <div className="rounded-lg border border-border bg-surface p-3">
-            <p className="text-xs text-text-subtle">Records</p>
-            <p className="tnum mt-0.5 text-lg font-semibold text-text">
-              {totalElements}
-            </p>
-          </div>
-          <div className="rounded-lg border border-border bg-surface p-3">
-            <p className="text-xs text-text-subtle">Showing</p>
-            <p className="tnum mt-0.5 text-lg font-semibold text-text">
-              {records.length}
-            </p>
-          </div>
-        </div>
-
         {/* Filters */}
-        <div className="mb-4 rounded-xl border border-border bg-surface p-3 sm:p-4">
+        <div className="mb-4 rounded-xl border border-border bg-surface p-3 sm:p-4 md:mx-[-2rem] md:px-8 lg:mx-[-4rem] lg:px-12">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <label className="mb-1 block text-xs font-medium text-text-muted">
@@ -301,7 +300,7 @@ function ServicesPageInner() {
                 type="date"
                 value={from}
                 max={to || undefined}
-                onChange={(e) => setFrom(e.target.value)}
+                onChange={(e) => onChangeFrom(e.target.value)}
                 className="h-11 w-full rounded border border-border bg-background px-3 text-sm text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
               />
             </div>
@@ -314,7 +313,7 @@ function ServicesPageInner() {
                 type="date"
                 value={to}
                 min={from || undefined}
-                onChange={(e) => setTo(e.target.value)}
+                onChange={(e) => onChangeTo(e.target.value)}
                 className="h-11 w-full rounded border border-border bg-background px-3 text-sm text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
               />
             </div>
@@ -338,7 +337,7 @@ function ServicesPageInner() {
               </select>
             </div>
             <div className="flex gap-2">
-              <Button variant="secondary" onClick={applyDateRange}>
+              <Button variant="secondary" onClick={applyAllFilters}>
                 Apply Filters
               </Button>
               <Button variant="ghost" onClick={resetFilters}>
@@ -378,41 +377,126 @@ function ServicesPageInner() {
             }
           />
         ) : (
-          <div className="space-y-3 pb-24 sm:pb-4">
-            {records.map((r) => (
-              <ServiceRecordCard
-                key={r.id}
-                record={r}
-                onSelect={(id) => openDetail(id)}
-                onEdit={(id) => openEdit(id)}
-                onDelete={(rec) => setDeleteTarget(rec)}
-              />
-            ))}
+          <>
+            {/* Desktop table view */}
+            <div className="hidden overflow-visible rounded-xl border border-border bg-surface md:block md:mx-[-2rem] md:px-8 lg:mx-[-4rem] lg:px-12">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-surface-muted text-xs text-text-muted">
+                    <th className="px-4 py-3 font-medium">Date</th>
+                    <th className="px-4 py-3 font-medium">Vehicle</th>
+                    <th className="hidden px-4 py-3 font-medium sm:table-cell">Odometer</th>
+                    <th className="hidden px-4 py-3 font-medium lg:table-cell">Parts</th>
+                    <th className="px-4 py-3 font-medium">Cost</th>
+                    <th className="hidden px-4 py-3 font-medium xl:table-cell">Notes</th>
+                    <th className="w-12 px-4 py-3 font-medium"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {records.map((r) => (
+                    <tr
+                      key={r.id}
+                      className="cursor-pointer border-b border-border/50 transition-colors last:border-0 hover:bg-surface-muted/50"
+                      onClick={() => openDetail(r.id)}
+                    >
+                      <td className="tnum whitespace-nowrap px-4 py-3 text-text">
+                        {formatDate(r.serviceDate)}
+                      </td>
+                      <td className="px-4 py-3 font-medium text-text">
+                        {vehicleMap[r.vehicleId]?.vehicleName ?? "—"}
+                      </td>
+                      <td className="tnum hidden whitespace-nowrap px-4 py-3 text-text sm:table-cell">
+                        {formatOdometer(r.odometer)}
+                      </td>
+                      <td className="hidden max-w-[200px] truncate px-4 py-3 text-text-muted lg:table-cell">
+                        {r.partsReplaced || "—"}
+                      </td>
+                      <td className="tnum whitespace-nowrap px-4 py-3 font-medium text-text">
+                        {r.totalCost != null ? formatCurrency(r.totalCost) : "—"}
+                      </td>
+                      <td className="hidden max-w-[150px] truncate px-4 py-3 text-text-muted xl:table-cell">
+                        {r.notes || "—"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <DropdownMenu
+                          trigger={
+                            <button
+                              className="flex h-8 w-8 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-surface-muted hover:text-text"
+                            >
+                              <svg className="h-4 w-4" viewBox="0 0 16 16" fill="currentColor">
+                                <circle cx="8" cy="3" r="1.5" />
+                                <circle cx="8" cy="8" r="1.5" />
+                                <circle cx="8" cy="13" r="1.5" />
+                              </svg>
+                            </button>
+                          }
+                        >
+                          <DropdownItem onClick={() => openDetail(r.id)}>
+                            View Detail
+                          </DropdownItem>
+                          {r.receiptImageUrl && (
+                            <DropdownItem onClick={() => setViewReceipt(r.receiptImageUrl)}>
+                              View Nota
+                            </DropdownItem>
+                          )}
+                          <DropdownItem onClick={() => openEdit(r.id)}>
+                            Edit
+                          </DropdownItem>
+                          <DropdownItem onClick={() => setDeleteTarget(r)} danger>
+                            Delete
+                          </DropdownItem>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between pt-2">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  disabled={page <= 0}
-                  onClick={() => goToPage(page - 1)}
-                >
-                  Previous
-                </Button>
-                <span className="text-sm text-text-muted">
-                  {page + 1} / {totalPages}
-                </span>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  disabled={page >= totalPages - 1}
-                  onClick={() => goToPage(page + 1)}
-                >
-                  Next
-                </Button>
-              </div>
-            )}
-          </div>
+            {/* Mobile card view */}
+            <div className="space-y-3 md:hidden">
+              {records.map((r) => (
+                <ServiceRecordCard
+                  key={r.id}
+                  record={r}
+                  vehicleName={vehicleMap[r.vehicleId]?.vehicleName}
+                  onSelect={(id) => openDetail(id)}
+                  onEdit={(id) => openEdit(id)}
+                  onDelete={(rec) => setDeleteTarget(rec)}
+                />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            <div className="flex flex-col items-center justify-between gap-3 pt-4 sm:flex-row md:mx-[-2rem] md:px-8 lg:mx-[-4rem] lg:px-12">
+              <p className="text-sm text-text-muted">
+                Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, totalElements)} of {totalElements}
+              </p>
+              {totalPages > 1 && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={page <= 0}
+                    onClick={() => goToPage(page - 1)}
+                  >
+                    Previous
+                  </Button>
+                  <span className="text-sm text-text-muted">
+                    {page + 1} / {totalPages}
+                  </span>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={page >= totalPages - 1}
+                    onClick={() => goToPage(page + 1)}
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
+            </div>
+          </>
         )}
       </MobileShell>
 
@@ -420,7 +504,7 @@ function ServicesPageInner() {
       <button
         onClick={openAdd}
         aria-label="Add service"
-        className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-2xl text-primary-fg shadow-lg transition-transform active:scale-95 sm:hidden"
+        className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-2xl text-primary-fg shadow-lg transition-transform active:scale-95 md:hidden"
       >
         +
       </button>
@@ -471,6 +555,22 @@ function ServicesPageInner() {
               setSheetOpen(true);
               setDetail(null);
             }}
+          />
+        )}
+      </Modal>
+
+      <Modal
+        open={!!viewReceipt}
+        onClose={() => setViewReceipt(null)}
+        title="Receipt"
+        size="lg"
+      >
+        {viewReceipt && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`${API_BASE_URL}${viewReceipt}`}
+            alt="Receipt"
+            className="max-h-[70vh] w-full rounded-lg border border-border object-contain"
           />
         )}
       </Modal>
